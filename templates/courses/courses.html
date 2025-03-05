@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses - Course Platform{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <main role="main" class="ml-sm-auto">
+
+                <div class="accordion m-4" id="accordionPanelsStayOpenExample">
+                    {% for cat, cat_lst in categories_dct.items %}
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse{{ cat }}" aria-expanded="true" aria-controls="panelsStayOpen-collapse{{ cat }}">
+                          {{ cat_lst.0.category__title }}
+                        </button>
+                      </h2>
+                      <div id="panelsStayOpen-collapse{{ cat }}" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                                {% for cd in cat_lst %}
+                                <div class="col">
+                                  <div class="card">
+                                    <div class="card-body">
+                                      <h5 class="card-title">{{ cd.title }}</h5>
+                                      <p class="card-text">{{ cd.description }}</p>
+                                      <small class="text-body-secondary">Начало: {{ cd.date_start }}</small>
+                                    </div>
+                                    <div class="card-footer justify-content-center">
+                                        {% if cd.usercourse %}
+
+                                            {% if cd.usercourse.progress == 0 %}
+                                            <form action="{% url 'user2course' %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="course_id" value="{{ cd.id }}">
+                                                <button type="submit" class="btn btn-danger">Покинуть курс</button>
+                                            </form>                                        
+                                            {% else %}
+                                            <p class="card-text">{{ cd.usercourse }}</p>
+                                            {% endif %}
+
+                                        {% else %}
+                                        <form action="{% url 'user2course' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="course_id" value="{{ cd.id }}">
+                                            <button type="submit" class="btn btn-primary">Записаться на курс</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>                    
+                                  </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+
+            </main>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses - Course Platform{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <main role="main" class="ml-sm-auto">
+
+              <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 m-2">
+              {% for cd in usercourse_lstdct %}
+              <div class="col">
+                <div class="card text-bg-light">
+                  <div class="card-header">{{ cd.course__category__title }}</div>
+                  <div class="card-body">
+                    <h5 class="card-title">{{ cd.course__title }}</h5>
+                    <p class="card-text">{{ cd.course__description }}</p>
+                    <p class="card-text">{{ cd.notes }}</p>
+
+                    <div title="{{ cd.progress }}" class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="{{ cd.progress }}" aria-valuemin="0" aria-valuemax="100">
+                      <div class="progress-bar" style="width: {{ cd.progress }}%;"></div>
+                  </div>
+
+                  </div>
+                  <ul class="list-group list-group-flush small">
+                    <li class="list-group-item"><b>Is Paid:</b> {{ cd.is_paid }}</li>
+                    <li class="list-group-item"><b>Status:</b> {{ cd.status }}</li>
+                    <li class="list-group-item"><b>Rating:</b> {{ cd.rating }}</li>
+                    <li class="list-group-item"><b>Created:</b> {{ cd.created_at }}</li>
+                    <li class="list-group-item"><b>Completed:</b> {{ cd.completed_at }}</li>
+                    <li class="list-group-item"><b>Last Accessed:</b> {{ cd.last_accessed }}</li>
+                  </ul>     
+                  {% if cd.progress == 0 %}
+                  <div class="card-body">
+                    <form action="{% url 'user2course' %}" method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="course_id" value="{{ cd.course_id }}">
+                      <button type="submit" class="btn btn-danger">Покинуть курс</button>
+                    </form>                       
+                  </div>   
+                  {% endif %}                         
+                  <div class="card-footer">
+                    <small class="text-body-secondary">{{ usercourse.course__author__username }}</small>
+                  </div>              
+                </div>
+              </div>
+              {% endfor %}
+              </div>
+
+            </main>
+        </div>
+    </div>
+
+{% endblock %}
