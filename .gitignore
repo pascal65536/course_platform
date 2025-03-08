@@ -8,3 +8,4 @@ local_settings.py
 staticfiles/
 _cache/
 config.py
+.pytest_cache/
