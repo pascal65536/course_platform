@@ -40,7 +40,8 @@
                     </form>                       
                   </div>   
                   {% endif %}                         
-                  <div class="card-footer">
+                  <div class="card-footer d-grid">
+                    <a type="submit" class="btn btn-danger" href="{% url 'course_detail' course_id=cd.course_id %}">Перейти на курс</a>
                     <small class="text-body-secondary">{{ usercourse.course__author__username }}</small>
                   </div>              
                 </div>

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from courses.views import course_page, user2course, user_courses
+from courses.views import course_page, user2course, user_courses, course_detail, module_detail, lesson_detail
 from accounts.views import register, profile, custom_login, custom_logout
 from django.contrib.auth import views as auth_views
 from django.conf import settings
@@ -16,6 +16,10 @@ urlpatterns = [
     path('accounts/profile/', profile, name='profile'),
     path('user_courses/', user_courses, name='user_courses'),
     path('user2course/', user2course, name='user2course'),
+    path('course/<int:course_id>/', course_detail, name='course_detail'),
+    path('course/<int:course_id>/module/<int:module_id>/', module_detail, name='module_detail'),
+    path('course/<int:course_id>/module/<int:module_id>/lesson/<int:lesson_id>/', lesson_detail, name='lesson_detail'),
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

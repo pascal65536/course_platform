@@ -1,0 +1,36 @@
+<!-- templates/module_detail.html -->
+
+{% extends 'base.html' %}
+
+{% load course_tags %}
+
+{% block title %}Module - {{ module.title }} - Course Platform{% endblock %}
+
+{% block content %}
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Левая колонка с модулями и уроками -->
+            <div class="col-md-4">
+                {% render_left_column course selected_module_id=module.id %}
+            </div>
+
+            <!-- Правая колонка для отображения содержимого -->
+            <div class="col-md-8">
+                <h3>{{ module.title }}</h3>
+                <p>{{ module.description }}</p>
+                <h4>Уроки</h4>
+                <ul>
+                    {% for lesson in module.visible_lessons %}
+                        <li>
+                            <h5>{{ lesson.title }}</h5>
+                            <p>{{ lesson.description }}</p>
+                            {% if lesson.video_url %}
+                                <a href="{{ lesson.video_url }}" target="_blank">Видео урок</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

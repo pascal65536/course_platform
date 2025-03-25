@@ -23,6 +23,8 @@ class Course(models.Model):
     category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
     date_start = models.DateField(null=True, blank=True)
     date_stop = models.DateField(null=True, blank=True)
+    is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
+
 
     def __str__(self):
         return f"{self.title}"
@@ -41,9 +43,13 @@ class Module(models.Model):
     order = models.PositiveIntegerField()
     date_start = models.DateField(null=True, blank=True)
     date_stop = models.DateField(null=True, blank=True)
+    is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
 
     def __str__(self):
         return f"{self.title}"
+
+    def get_lessons(self):
+        return self.lesson_set.order_by('order')
 
     class Meta:
         verbose_name = "Модуль"
@@ -59,6 +65,7 @@ class Lesson(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     order = models.PositiveIntegerField()
+    is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
 
     def __str__(self):
         return f"{self.title}"

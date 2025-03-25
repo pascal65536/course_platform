@@ -1,0 +1,26 @@
+<!-- templates/course_detail.html -->
+
+{% extends 'base.html' %}
+
+{% load course_tags %}
+
+{% block title %}Courses - {{ course.title }} - Course Platform{% endblock %}
+
+{% block content %}
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Левая колонка с модулями и уроками -->
+            <div class="col-md-4">
+                {% render_left_column course %}
+            </div>
+
+            <!-- Правая колонка для отображения содержимого -->
+            <div class="col-md-8">
+                <h2>Содержимое</h2>
+                <div id="content-area">
+                    <p>Выберите модуль или урок для просмотра содержимого.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

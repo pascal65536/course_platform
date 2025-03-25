@@ -207,3 +207,63 @@ ul.errorlist li {
 .navbar-dark .navbar-nav .nav-link.btn-link {
     color: #61afef;
 }
+
+/* static/css/styles.css */
+
+/* Дерево курса с использованием чекбоксов */
+.tree {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.tree .module-item {
+    position: relative;
+}
+
+.tree .toggle-checkbox {
+    display: none;
+}
+
+.tree .toggle-checkbox:checked + .lessons-list {
+    display: block;
+}
+
+.tree .toggle-checkbox:checked + .lessons-list + .module-item .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.tree .lessons-list {
+    display: none;
+    list-style-type: none;
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.tree .lesson-item {
+    margin-bottom: 5px;
+}
+
+.tree .lesson-item a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.tree .lesson-item a:hover {
+    color: var(--main-blue);
+}
+
+/* Иконки */
+.bi {
+    margin-right: 10px;
+}
+
+/* Стили для метки, чтобы клик по ней переключал чекбокс */
+.tree .module-item label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.tree .toggle-icon {
+    transition: transform 0.3s ease;
+}

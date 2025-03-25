@@ -1,0 +1,25 @@
+<!-- templates/course_tags/left_column.html -->
+
+<div class="left-column">
+    <h2>«{{ course.title }}»</h2>
+    <ul class="list-group tree">
+        {% for module in modules %}
+            <li class="list-group-item module-item">
+                <label class="d-flex justify-content-between align-items-center">
+                    <h5>
+                        <i class="bi bi-book"></i> <a href="{% url 'module_detail' course_id=course.id module_id=module.module.id  %}"><b>{{ module.module.title }}</b></a>
+                    </h5>
+                </label>
+                <input type="checkbox" id="module-{{ module.id }}" class="toggle-checkbox d-none">
+                <ul class="list-group lessons-list">
+                    {% for lesson in module.lessons %}
+                        <li class="list-group-item lesson-item">
+                            <i class="bi bi-file-earmark-text"></i> <a href="{% url 'lesson_detail' course_id=course.id module_id=module.module.id lesson_id=lesson.id %}">{{ lesson.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
