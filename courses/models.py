@@ -25,7 +25,6 @@ class Course(models.Model):
     date_stop = models.DateField(null=True, blank=True)
     is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
 
-
     def __str__(self):
         return f"{self.title}"
 
@@ -49,7 +48,7 @@ class Module(models.Model):
         return f"{self.title}"
 
     def get_lessons(self):
-        return self.lesson_set.order_by('order')
+        return self.lesson_set.order_by("order")
 
     class Meta:
         verbose_name = "Модуль"
@@ -106,7 +105,10 @@ class UserCourse(models.Model):
         return f"{self.user.username} - {self.course.title}"
 
     class Meta:
-        unique_together = ('user', 'course',)
+        unique_together = (
+            "user",
+            "course",
+        )
         verbose_name = "Пользовательский курс"
         verbose_name_plural = "Пользовательские курсы"
 

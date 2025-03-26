@@ -1,12 +1,12 @@
-<!-- templates/courses/edit_lesson.html -->
+<!-- templates/courses/edit_module.html -->
 
 {% extends 'base.html' %}
 
-{% block title %}Edit Lesson - {{ lesson.title }} - Course Platform{% endblock %}
+{% block title %}Edit Module - {{ module.title }} - Course Platform{% endblock %}
 
 {% block content %}
     <div class="container mt-4 form-edit">
-        <h2>Редактировать урок</h2>
+        <h2>Редактировать модуль</h2>
         <form method="post">
             {% csrf_token %}
             <div class="form-group mb-3">
@@ -24,17 +24,17 @@
                 {% endif %}
             </div>
             <div class="form-group mb-3">
-                {{ form.content.label_tag }}
-                {{ form.content }}
-                {% if form.content.errors %}
-                    <div class="text-danger">{{ form.content.errors }}</div>
+                {{ form.date_start.label_tag }}
+                {{ form.date_start }}
+                {% if form.date_start.errors %}
+                    <div class="text-danger">{{ form.date_start.errors }}</div>
                 {% endif %}
             </div>
             <div class="form-group mb-3">
-                {{ form.video_url.label_tag }}
-                {{ form.video_url }}
-                {% if form.video_url.errors %}
-                    <div class="text-danger">{{ form.video_url.errors }}</div>
+                {{ form.date_stop.label_tag }}
+                {{ form.date_stop }}
+                {% if form.date_stop.errors %}
+                    <div class="text-danger">{{ form.date_stop.errors }}</div>
                 {% endif %}
             </div>
             <div class="form-group mb-3">
@@ -54,4 +54,23 @@
             <button type="submit" class="btn btn-success">Сохранить изменения</button>
         </form>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            $("#id_date_start").datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true
+            });
+            $("#id_date_stop").datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true
+            });
+        });
+    </script>
 {% endblock %}

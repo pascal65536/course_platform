@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from courses.views import course_page, user2course, user_courses, course_detail, module_detail, lesson_detail, edit_lesson
+from courses.views import course_page, user2course, user_courses, course_detail, module_detail, lesson_detail, edit_lesson, edit_course, edit_module, add_module, add_lesson
 from accounts.views import register, profile, custom_login, custom_logout
 from django.contrib.auth import views as auth_views
 from django.conf import settings
@@ -20,6 +20,10 @@ urlpatterns = [
     path('course/<int:course_id>/module/<int:module_id>/', module_detail, name='module_detail'),
     path('course/<int:course_id>/module/<int:module_id>/lesson/<int:lesson_id>/', lesson_detail, name='lesson_detail'),
     path('course/<int:course_id>/module/<int:module_id>/lesson/<int:lesson_id>/edit/', edit_lesson, name='edit_lesson'),
+    path('course/<int:course_id>/edit/', edit_course, name='edit_course'),
+    path('course/<int:course_id>/module/<int:module_id>/edit/', edit_module, name='edit_module'),
+    path('course/<int:course_id>/module/add/', add_module, name='add_module'),
+    path('course/<int:course_id>/module/<int:module_id>/lesson/add/', add_lesson, name='add_lesson'),    
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
