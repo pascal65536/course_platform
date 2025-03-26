@@ -1,7 +1,9 @@
 <!-- templates/course_tags/left_column.html -->
 
 <div class="left-column">
-    <h2>«{{ course.title }}»</h2>
+    <h2>
+        <i class="bi bi-grid-1x2"></i> <a href="{% url 'course_detail' course_id=course.id %}"><b>{{ course.title }}</b></a>
+    </h2>
     <ul class="list-group tree">
         {% for module in modules %}
             <li class="list-group-item module-item">

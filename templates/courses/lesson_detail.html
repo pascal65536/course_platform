@@ -16,12 +16,29 @@
 
             <!-- Правая колонка для отображения содержимого -->
             <div class="col-md-8">
-                <h3>{{ lesson.title }}</h3>
-                <p>{{ lesson.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>                      
+                            <a href="{% url 'module_detail' course_id=course.id module_id=module.id  %}"><b>{{ module.title }}</b></a>
+                            {{ lesson.title }}
+                        </h3>
+                        <p>{{ lesson.description }}</p>
+                    </div>
+                    {% if user.is_authenticated and user.is_staff %}
+                        <div>
+                            <a href="{% url 'edit_lesson' course_id=course.id module_id=module.id lesson_id=lesson.id %}" class="btn btn-primary">Редактировать урок</a>
+                        </div>
+                    {% endif %}
+                </div>
+
                 {% if lesson.video_url %}
                     <h4>Видео урок</h4>
                     <p><a href="{{ lesson.video_url }}" target="_blank">Смотреть видео</a></p>
                 {% endif %}
+
+                <div class="mt-4">
+                    {{ lesson.html|safe }}
+                </div>
             </div>
         </div>
     </div>

@@ -5,12 +5,27 @@ from .models import Category, Course, Module, Lesson, UserCourse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+import markdown
+
+
 
 
 @login_required
 def course_detail(request, course_id):
     course_obj = get_object_or_404(Course, id=course_id)
-    context = {"course": course_obj}
+
+    modules_list = list()
+    modules_qs = Module.objects.filter(course=course_obj, is_hidden=False).order_by('order')
+    for modules in modules_qs:
+        modules_dct = dict()
+        modules_dct.setdefault(modules.id, dict())
+        modules_dct[modules.id]['module'] = modules
+        modules_dct[modules.id]['lessons'] = list()
+        for lesson in modules.get_lessons():
+            modules_dct[modules.id]['lessons'].append(lesson)
+        modules_list.append(modules_dct[modules.id])
+
+    context = {"course": course_obj, "modules_list": modules_list}
     return render(request, "courses/course_detail.html", context)
 
 
@@ -18,15 +33,30 @@ def course_detail(request, course_id):
 def module_detail(request, course_id, module_id):
     course = get_object_or_404(Course, id=course_id)
     module = get_object_or_404(Module, id=module_id, course=course)
-    lessons = module.lesson_set.filter(is_hidden=False).order_by("order")
+    lessons_qs = Lesson.objects.filter(module=module, is_hidden=False).order_by('order')
     context = {
         "course": course,
-        "modules": [module],
         "module": module,
-        "lessons": lessons,
+        "lessons_qs": lessons_qs,
         "selected_module_id": module.id,
-    }
+    }        
     return render(request, "courses/module_detail.html", context)
+
+
+@login_required
+def edit_lesson(request, course_id, module_id, lesson_id):
+    course = get_object_or_404(Course, id=course_id)
+    module = get_object_or_404(Module, id=module_id, course=course)
+    lesson = get_object_or_404(Lesson, id=lesson_id, module=module)
+    if not request.user.is_staff:
+        return redirect('lesson_detail', course_id=course.id, module_id=module.id, lesson_id=lesson.id)
+    if request.method == 'POST':
+        lesson.title = request.POST.get('title')
+        lesson.description = request.POST.get('description')
+        lesson.content = request.POST.get('content')
+        lesson.save()
+        return redirect('lesson_detail', course_id=course.id, module_id=module.id, lesson_id=lesson.id)
+    return render(request, 'courses/edit_lesson.html', {'lesson': lesson})
 
 
 @login_required
@@ -34,6 +64,7 @@ def lesson_detail(request, course_id, module_id, lesson_id):
     course = get_object_or_404(Course, id=course_id)
     module = get_object_or_404(Module, id=module_id, course=course)
     lesson = get_object_or_404(Lesson, id=lesson_id, module=module)
+    lesson.html = markdown.markdown(lesson.content, extensions=["fenced_code", "codehilite"])
     context = {
         "course": course,
         "modules": [module],

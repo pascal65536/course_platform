@@ -20,14 +20,10 @@
                 <p>{{ module.description }}</p>
                 <h4>Уроки</h4>
                 <ul>
-                    {% for lesson in module.visible_lessons %}
-                        <li>
-                            <h5>{{ lesson.title }}</h5>
-                            <p>{{ lesson.description }}</p>
-                            {% if lesson.video_url %}
-                                <a href="{{ lesson.video_url }}" target="_blank">Видео урок</a>
-                            {% endif %}
-                        </li>
+                    {% for lesson in lessons_qs %}
+                        <h5>
+                            <i class="bi bi-file-earmark-text"></i> <a href="{% url 'lesson_detail' course_id=course.id module_id=module.id lesson_id=lesson.id %}">{{ lesson.title }}</a>
+                        </h5>
                     {% endfor %}
                 </ul>
             </div>
