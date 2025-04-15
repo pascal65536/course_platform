@@ -30,25 +30,6 @@ def add_module(request, course_id):
 
 
 @login_required
-def add_lesson(request, course_id, module_id):
-    course = get_object_or_404(Course, id=course_id)
-    module = get_object_or_404(Module, id=module_id, course=course)
-    if not request.user.is_staff:
-        return redirect("module_detail", course_id=course.id, module_id=module.id)
-    form = LessonForm()
-    if request.method == "POST":
-        form = LessonForm(request.POST)
-        if form.is_valid():
-            lesson = form.save(commit=False)
-            lesson.module = module
-            lesson.author = request.user
-            lesson.save()
-            return redirect("module_detail", course_id=course.id, module_id=module.id)
-    context = {"form": form, "module": module, "course": course}
-    return render(request, "courses/edit_lesson.html", context)
-
-
-@login_required
 def edit_module(request, course_id, module_id):
     course = get_object_or_404(Course, id=course_id)
     module = get_object_or_404(Module, id=module_id, course=course)
@@ -66,28 +47,12 @@ def edit_module(request, course_id, module_id):
 
 
 @login_required
-def course_detail(request, course_id):
-    course_obj = get_object_or_404(Course, id=course_id)
-    modules_list = list()
-    modules_qs = Module.objects.filter(course=course_obj, is_hidden=False).order_by(
-        "order"
-    )
-    for modules in modules_qs:
-        modules_dct = dict()
-        modules_dct.setdefault(modules.id, dict())
-        modules_dct[modules.id]["module"] = modules
-        modules_dct[modules.id]["lessons"] = list()
-        for lesson in modules.get_lessons():
-            modules_dct[modules.id]["lessons"].append(lesson)
-        modules_list.append(modules_dct[modules.id])
-    context = {"course": course_obj, "modules_list": modules_list}
-    return render(request, "courses/course_detail.html", context)
-
-
-@login_required
 def module_detail(request, course_id, module_id):
     course = get_object_or_404(Course, id=course_id)
     module = get_object_or_404(Module, id=module_id, course=course)
+    if not module.can_view(request.user):
+        return redirect("course_page")
+
     lessons_qs = Lesson.objects.filter(module=module, is_hidden=False).order_by("order")
     context = {
         "course": course,
@@ -96,6 +61,25 @@ def module_detail(request, course_id, module_id):
         "selected_module_id": module.id,
     }
     return render(request, "courses/module_detail.html", context)
+
+
+@login_required
+def add_lesson(request, course_id, module_id):
+    course = get_object_or_404(Course, id=course_id)
+    module = get_object_or_404(Module, id=module_id, course=course)
+    if not request.user.is_staff:
+        return redirect("module_detail", course_id=course.id, module_id=module.id)
+    form = LessonForm()
+    if request.method == "POST":
+        form = LessonForm(request.POST)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.module = module
+            lesson.author = request.user
+            lesson.save()
+            return redirect("module_detail", course_id=course.id, module_id=module.id)
+    context = {"form": form, "module": module, "course": course}
+    return render(request, "courses/edit_lesson.html", context)
 
 
 @login_required
@@ -128,21 +112,6 @@ def edit_lesson(request, course_id, module_id, lesson_id):
 
 
 @login_required
-def edit_course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
-    if not request.user.is_staff:
-        return redirect("course_detail", course_id=course.id)
-    form = CourseForm(instance=course)
-    if request.method == "POST":
-        form = CourseForm(request.POST, request.FILES, instance=course)
-        if form.is_valid():
-            form.save()
-            return redirect("course_detail", course_id=course.id)
-    context = {"form": form, "course": course}
-    return render(request, "courses/edit_course.html", context)
-
-
-@login_required
 def lesson_detail(request, course_id, module_id, lesson_id):
     course = get_object_or_404(Course, id=course_id)
     module = get_object_or_404(Module, id=module_id, course=course)
@@ -160,33 +129,49 @@ def lesson_detail(request, course_id, module_id, lesson_id):
     return render(request, "courses/lesson_detail.html", context)
 
 
-def course_page(request):
-    usercourse_dct = dict()
-    user = request.user
-    if user.is_authenticated:
-        usercourse_lstdct = UserCourse.objects.filter(
-            user=user, delete__isnull=True
-        ).values("course_id", "rating", "progress", "is_paid", "status")
-        for usercourse in usercourse_lstdct:
-            usercourse_dct[usercourse["course_id"]] = usercourse
-    course_lstdct = Course.objects.filter(date_stop__gte=timezone.now()).values(
-        "category_id",
-        "id",
-        "category__title",
-        "title",
-        "description",
-        "date_start",
-        "date_stop",
-        "author_id",
-    )
+@login_required
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    if not course.can_edit(request.user):
+        return redirect("course_detail", course_id=course.id)
+    form = CourseForm(instance=course)
+    if request.method == "POST":
+        form = CourseForm(request.POST, request.FILES, instance=course)
+        if form.is_valid():
+            form.save()
+            return redirect("course_detail", course_id=course.id)
+    context = {"form": form, "course": course}
+    return render(request, "courses/edit_course.html", context)
 
-    categories_dct = dict()
-    for cat in course_lstdct:
-        cat.update({"usercourse": usercourse_dct.get(cat["id"], dict())})
-        categories_dct.setdefault(cat["category_id"], list())
-        categories_dct[cat["category_id"]].append(cat)
-    context = {"categories_dct": categories_dct}
-    return render(request, "courses/courses.html", context)
+
+def course_page(request, *args, **kwargs):
+    user = request.user
+    courses_qs = Course.objects.for_user(user)
+    if kwargs.get("is_author"):
+        courses_qs = courses_qs.filter(author=user)
+    context = {"courses_qs": courses_qs}
+    return render(request, "courses/course_page.html", context=context)
+
+
+@login_required
+def course_detail(request, course_id):
+    course_obj = get_object_or_404(Course, id=course_id)
+    if not course_obj.can_view(request.user):
+        return redirect("course_page")
+    modules_list = list()
+    modules_qs = Module.objects.filter(course=course_obj, is_hidden=False)
+    modules_qs = modules_qs.order_by("order")
+    for modules in modules_qs:
+        modules_dct = dict()
+        modules_dct.setdefault(modules.id, dict())
+        modules_dct[modules.id]["module"] = modules
+        modules_dct[modules.id]["lessons"] = list()
+        for lesson in modules.get_lessons():
+            modules_dct[modules.id]["lessons"].append(lesson)
+        modules_list.append(modules_dct[modules.id])
+    course_obj.editable = course_obj.can_edit(request.user)
+    context = {"course": course_obj, "modules_list": modules_list}
+    return render(request, "courses/course_detail.html", context)
 
 
 @login_required
@@ -235,6 +220,3 @@ def user2course(request):
             )
             messages.success(request, "Вы успешно записаны на курс!")
         return redirect("course_page")
-        # return redirect("course_detail", course_id=course_id)
-    # else:
-    #     return redirect("course_page")

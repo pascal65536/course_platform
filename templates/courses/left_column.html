@@ -27,7 +27,7 @@
                 </ul>
             </li>
         {% endfor %}
-        {% if user.is_authenticated and user.is_staff %}
+        {% if course.editable %}
             <li class="list-group-item add-module-item mt-3">
                 <a href="{% url 'add_module' course_id=course.id %}" class="btn btn-secondary btn-lg">Добавить модуль</a>
             </li>

@@ -36,10 +36,10 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'user_courses' %}">My courses</a>
                     </li>
-                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                        {# <a class="nav-link" href="{% url 'course_page' %}?is_author=True">I'm author</a> #}
                     </li>
+                    {% endif %}
                 </ul>
 
                 <!-- Кнопка авторизации -->

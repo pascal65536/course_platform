@@ -1,11 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
+from .managers import CourseManager
 
 
 class Category(models.Model):
     title = models.CharField(max_length=255)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.title}"
@@ -19,11 +22,38 @@ class Course(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
     date_start = models.DateField(null=True, blank=True)
     date_stop = models.DateField(null=True, blank=True)
     is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = CourseManager()
+
+    def can_view(self, user):
+        if not user.is_active:
+            return False
+        if user.is_superuser:
+            return True
+        if user.is_staff and user == self.author:
+            return True
+        if self.is_hidden:
+            return False
+        date_start = self.date_start or timezone.datetime.now().date()
+        date_stop = self.date_stop or timezone.datetime.now().date()            
+        if date_start <= timezone.now().date() <= date_stop:   
+            return True
+        return False
+
+
+    def can_edit(self, user):
+        if not user.is_active:
+            return False        
+        if user.is_superuser:
+            return True
+        if user.is_staff and user == self.author:
+            return True
+        return False
 
     def __str__(self):
         return f"{self.title}"
@@ -38,11 +68,37 @@ class Module(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(default=0)
     date_start = models.DateField(null=True, blank=True)
     date_stop = models.DateField(null=True, blank=True)
     is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def can_view(self, user):
+        if not user.is_active:
+            return False
+        if user.is_superuser:
+            return True
+        if user.is_staff and user == self.author:
+            return True
+        if self.course not in user.course_set.all():
+            return False
+        if self.is_hidden:
+            return False
+        date_start = self.date_start or timezone.datetime.now().date()
+        date_stop = self.date_stop or timezone.datetime.now().date()            
+        if date_start <= timezone.now().date() <= date_stop:   
+            return True
+        return False
+
+    def can_edit(self, user):
+        if not user.is_active:
+            return False        
+        if user.is_superuser:
+            return True
+        if user.is_staff and user == self.author:
+            return True
+        return False
 
     def __str__(self):
         return f"{self.title}"
@@ -62,9 +118,9 @@ class Lesson(models.Model):
     video_url = models.URLField(blank=True, null=True)
     description = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(default=0)
     is_hidden = models.BooleanField(default=False, verbose_name="Скрыт от учеников")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.title}"
@@ -83,7 +139,6 @@ class UserCourse(models.Model):
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="student")
     is_paid = models.BooleanField(default=False, verbose_name="Оплачен")
     completed_at = models.DateTimeField(null=True, blank=True, verbose_name="Завершен")
@@ -100,6 +155,7 @@ class UserCourse(models.Model):
         ],
     )
     notes = models.TextField(blank=True, verbose_name="Заметки пользователя")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
