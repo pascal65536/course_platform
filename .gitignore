@@ -9,3 +9,4 @@ staticfiles/
 _cache/
 config.py
 .pytest_cache/
+db.sqlite3
