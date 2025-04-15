@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-from config import DATABASE, DEBUG, ALLOWED_HOSTS
+from .config import DATABASE, DEBUG, ALLOWED_HOSTS
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
