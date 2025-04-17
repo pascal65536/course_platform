@@ -1,11 +1,10 @@
-
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from courses.models import Category, Course, Module, Lesson
 import random
 from faker import Faker
 
-fake = Faker()
+fake = Faker('ru_RU')  # Устанавливаем локализацию на русский язык
 
 class Command(BaseCommand):
     help = 'Добавляет данные в базу данных'
@@ -22,17 +21,20 @@ class Command(BaseCommand):
             users.append(user)
             self.stdout.write(self.style.SUCCESS(f'Создан пользователь {user.username}'))
 
-        # Создание категорий
+        # Создание категорий с русскими названиями
+        category_titles = [
+            "Программирование", "Дизайн", "Маркетинг", "Бизнес", "Наука"
+        ]
         categories = []
-        for i in range(5):
+        for i, title in enumerate(category_titles):
             category = Category.objects.create(
-                title=fake.word().capitalize() + ' Category',
+                title=title,
                 order=i
             )
             categories.append(category)
             self.stdout.write(self.style.SUCCESS(f'Создана категория {category.title}'))
 
-        # Создание курсов
+        # Создание курсов с русскими названиями и описаниями
         courses = []
         for i in range(10):
             course = Course.objects.create(
@@ -46,7 +48,7 @@ class Command(BaseCommand):
             courses.append(course)
             self.stdout.write(self.style.SUCCESS(f'Создан курс {course.title}'))
 
-        # Создание модулей
+        # Создание модулей с русскими названиями и описаниями
         modules = []
         for i in range(20):
             module = Module.objects.create(
@@ -61,7 +63,7 @@ class Command(BaseCommand):
             modules.append(module)
             self.stdout.write(self.style.SUCCESS(f'Создан модуль {module.title}'))
 
-        # Создание уроков
+        # Создание уроков с русскими названиями и содержанием
         for i in range(50):
             lesson = Lesson.objects.create(
                 module=random.choice(modules),

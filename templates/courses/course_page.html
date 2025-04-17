@@ -1,38 +1,63 @@
 {% extends 'base.html' %}
 
-{% block title %}Courses - Course Platform{% endblock %}
+{% block title %}Витрина курсов | Course Platform{% endblock %}
 
 {% block content %}
 
-    <div class="container-fluid">
-        <div class="row">
-            <main role="main" class="ml-sm-auto">
+<div class="container-fluid">
+    <div class="row">
+        <main role="main" class="ml-sm-auto">
 
-              <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 m-2">
-                {% for course in courses_qs %}
-                <div class="col">
-                  <div class="card {% if course.author == user %}bg-info-subtle{% else %}text-bg-light{% endif %}">
-                    <div class="card-header">{{ course.category }}</div>
-                    <div class="card-body">
-                      <h5 class="card-title">{{ course.title }}</h5>
-                      <p class="card-text">{{ course.description }}</p>
-                      <p class="card-text small">Начало: {{ course.date_start }}</p>
-                      <p class="card-text small">Окончание: {{ course.date_stop }}</p>
-                      <p class="card-text small">Приватный курс: {{ course.is_hidden }}</p>
-                      <p class="card-text small">Автор: {{ course.author }}</p>
-                    </div>
-  
-                    <div class="card-footer d-grid">
-                      <a type="submit" class="btn btn-danger" href="{% url 'course_detail' course_id=course.id %}">Перейти на курс</a>
-                      <small class="text-body-secondary">{{ course.author__username }}</small>
-                    </div>              
-                  </div>
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 m-2">
+            {% for course in courses_qs %}
+            <div class="col">
+              <div class="card {% if course.author == user %}bg-info-subtle{% else %}text-bg-light{% endif %} {% if course.is_hidden %}text-reset{% endif %}">
+                <div class="card-header">{{ course.category }}</div>
+
+                <div class="card-body">
+                  <h5 class="card-title">{{ course.title }}</h5>
+                  <p class="card-text">{{ course.description }}</p>
+                  {% if course.date_start %}<p class="card-text small">Начало: {{ course.date_start }}</p>{% endif %}
+                  {% if course.date_stop %}<p class="card-text small">Окончание: {{ course.date_stop }}</p>{% endif %}
+                  {% if course.is_hidden %}<p class="card-text small">Приватный курс</p>{% endif %}
+                  <p class="card-text small">Автор: {{ course.author }}</p>
                 </div>
-                {% endfor %}
-              </div>
+                
+                <div class="card-footer">
+                  {% if course.can.edit %}        
+                    <a type="submit" class="btn btn-danger d-flex justify-content-center m-1" href="{% url 'course_detail' course_id=course.id %}">Редактировать курс</a>
+                    <small class="text-body-danger">{{ course.author__username }}</small>
+                  {% endif %} 
 
-            </main>
-        </div>
+                  {% if course.can.view %}        
+                    <a type="submit" class="btn btn-success d-flex justify-content-center m-1" href="{% url 'course_detail' course_id=course.id %}">Перейти на курс</a>
+                    <small class="text-body-success">{{ course.author__username }}</small>
+                  {% endif %}            
+                  
+                  {% if course.can.exit %}             
+                  <form action="{% url 'user2course' %}" method="post" class="">
+                      {% csrf_token %}
+                      <input type="hidden" name="course_id" value="{{ course.id }}">
+                      <button type="submit" class="btn btn-success rounded-2 m-1">Покинуть курс</button>
+                  </form>   
+                  {% endif %}
+
+                  {% if course.can.append %}                                     
+                  <form action="{% url 'user2course' %}" method="post" class="">
+                      {% csrf_token %}
+                      <input type="hidden" name="course_id" value="{{ course.id }}">
+                      <button type="submit" class="btn btn-primary rounded-2 m-1">Записаться на курс</button>
+                  </form>
+                  {% endif %}
+                </div>   
+                                  
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+        </main>
     </div>
+</div>
 
 {% endblock %}

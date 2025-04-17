@@ -11,6 +11,20 @@ from markdown import markdown
 from .forms import CourseForm, LessonForm, ModuleForm
 
 
+readonly_dct = {"edit": False, "view": True, "exit": False, "append": True}
+can_dct = {
+    (0, 0): {"edit": False, "view": True, "exit": False, "append": True},
+    (1, 0): {"edit": False, "view": True, "exit": False, "append": True},
+    (1, 1): {"edit": False, "view": True, "exit": True, "append": False},
+    (3, 0): {"edit": False, "view": True, "exit": False, "append": True},
+    (3, 1): {"edit": False, "view": True, "exit": True, "append": False},
+    (3, 2): {"edit": True, "view": False, "exit": False, "append": False},
+    (7, 0): {"edit": True, "view": False, "exit": False, "append": False},
+    (7, 2): {"edit": True, "view": False, "exit": False, "append": False},
+    (9, 9): {"edit": False, "view": True, "exit": False, "append": True},
+}
+
+
 @login_required
 def add_module(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -147,8 +161,16 @@ def edit_course(request, course_id):
 def course_page(request, *args, **kwargs):
     user = request.user
     courses_qs = Course.objects.for_user(user)
-    if kwargs.get("is_author"):
-        courses_qs = courses_qs.filter(author=user)
+    usercourse_qs = UserCourse.objects.for_user(user)
+    usercourse_qs = usercourse_qs.values_list("course_id", flat=True)
+    course_list = list(usercourse_qs)
+    for course in courses_qs:
+        key = (
+            int(user.is_active) + int(user.is_staff) * 2 + int(user.is_superuser) * 4,
+            int(course.author == user) * 2 + int(course.id in course_list),
+        )
+        course.can = can_dct.get(key, readonly_dct)
+        course.key = key
     context = {"courses_qs": courses_qs}
     return render(request, "courses/course_page.html", context=context)
 
@@ -177,25 +199,15 @@ def course_detail(request, course_id):
 @login_required
 def user_courses(request):
     user = request.user
-    usercourse_lstdct = (
-        UserCourse.objects.filter(user=user, delete__isnull=True)
-        .order_by("-created_at")
-        .values(
-            "course__title",
-            "course__category__title",
-            "course__author__username",
-            "created_at",
-            "completed_at",
-            "last_accessed",
-            "course__description",
-            "rating",
-            "progress",
-            "is_paid",
-            "status",
-            "course_id",
+    usercourse_qs = UserCourse.objects.for_user(user).select_related("course", "user")
+    for course in usercourse_qs:
+        key = (
+            int(user.is_active) + int(user.is_staff) * 2 + int(user.is_superuser) * 4,
+            int(course.course.author == user) * 2 + 1,
         )
-    )
-    context = {"usercourse_lstdct": usercourse_lstdct}
+        course.can = can_dct.get(key, readonly_dct)
+        course.key = key
+    context = {"usercourse_qs": usercourse_qs}
     return render(request, "courses/user_courses.html", context)
 
 

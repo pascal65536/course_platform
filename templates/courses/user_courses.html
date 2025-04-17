@@ -9,13 +9,13 @@
             <main role="main" class="ml-sm-auto">
 
               <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 m-2">
-              {% for cd in usercourse_lstdct %}
+              {% for cd in usercourse_qs %}
               <div class="col">
                 <div class="card text-bg-light">
-                  <div class="card-header">{{ cd.course__category__title }}</div>
+                  <div class="card-header">{{ cd.course.category.title }}</div>
                   <div class="card-body">
-                    <h5 class="card-title">{{ cd.course__title }}</h5>
-                    <p class="card-text">{{ cd.course__description }}</p>
+                    <h5 class="card-title">{{ cd.course.title }}</h5>
+                    <p class="card-text">{{ cd.course.description }}</p>
                     <p class="card-text">{{ cd.notes }}</p>
 
                     <div title="{{ cd.progress }}" class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="{{ cd.progress }}" aria-valuemin="0" aria-valuemax="100">
@@ -31,19 +31,27 @@
                     <li class="list-group-item"><b>Completed:</b> {{ cd.completed_at }}</li>
                     <li class="list-group-item"><b>Last Accessed:</b> {{ cd.last_accessed }}</li>
                   </ul>     
-                  {% if cd.progress == 0 %}
-                  <div class="card-body">
-                    <form action="{% url 'user2course' %}" method="post">
-                      {% csrf_token %}
-                      <input type="hidden" name="course_id" value="{{ cd.course_id }}">
-                      <button type="submit" class="btn btn-danger">Покинуть курс</button>
-                    </form>                       
+
+
+                  <div class="card-footer">
+
+                    {% if cd.can.exit %}             
+                    <form action="{% url 'user2course' %}" method="post" class="">
+                        {% csrf_token %}
+                        <input type="hidden" name="course_id" value="{{ cd.course.id }}">
+                        <button type="submit" class="btn btn-success rounded-2 m-1">Покинуть курс</button>
+                    </form>   
+                    {% endif %}
+
+                    {% if cd.can.view %}        
+                    <a type="submit" class="btn btn-success d-flex justify-content-center m-1" href="{% url 'course_detail' course_id=cd.course.id %}">Перейти на курс</a>
+                    {% endif %}  
+
+                  </div>
+                  <div class="card-footer">  
+                    <small class="text-body-secondary">{{ cd.course.author.username }}</small>
                   </div>   
-                  {% endif %}                         
-                  <div class="card-footer d-grid">
-                    <a type="submit" class="btn btn-danger" href="{% url 'course_detail' course_id=cd.course_id %}">Перейти на курс</a>
-                    <small class="text-body-secondary">{{ usercourse.course__author__username }}</small>
-                  </div>              
+
                 </div>
               </div>
               {% endfor %}

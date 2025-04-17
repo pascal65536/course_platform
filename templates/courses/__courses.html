@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Courses - Course Platform{% endblock %}
+{% block title %}Курсы - Course Platform{% endblock %}
 
 {% block content %}
-
     <div class="container-fluid">
         <div class="row">
             <main role="main" class="ml-sm-auto">
@@ -29,25 +28,16 @@
                                       <small class="text-body-secondary">Начало: {{ cd.date_start }}</small>
                                     </div>
                                     <div class="card-footer justify-content-center">
-                                        {% if cd.usercourse %}
-
-                                            {% if cd.usercourse.progress == 0 %}
-                                            <form action="{% url 'user2course' %}" method="post">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="course_id" value="{{ cd.id }}">
-                                                <button type="submit" class="btn btn-danger">Покинуть курс</button>
-                                            </form>                                        
-                                            {% else %}
-                                            <p class="card-text">{{ cd.usercourse }}</p>
-                                            {% endif %}
-
-                                        {% else %}
+                                        <form action="{% url 'user2course' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="course_id" value="{{ cd.id }}">
+                                            <button type="submit" class="btn btn-danger">Покинуть курс</button>
+                                        </form>                                        
                                         <form action="{% url 'user2course' %}" method="post">
                                             {% csrf_token %}
                                             <input type="hidden" name="course_id" value="{{ cd.id }}">
                                             <button type="submit" class="btn btn-primary">Записаться на курс</button>
                                         </form>
-                                        {% endif %}
                                     </div>                    
                                   </div>
                                 </div>

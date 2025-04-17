@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
-from .managers import CourseManager
+from .managers import CourseManager, UserCourseManager
 
 
 class Category(models.Model):
@@ -156,6 +156,8 @@ class UserCourse(models.Model):
     )
     notes = models.TextField(blank=True, verbose_name="Заметки пользователя")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = UserCourseManager()
 
     def __str__(self):
         return f"{self.user.username} - {self.course.title}"
