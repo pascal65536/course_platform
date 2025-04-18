@@ -22,12 +22,13 @@ ALLOWED_HOSTS = ALLOWED_HOSTS
 # Application definition
 
 INSTALLED_APPS = [
+    "django.contrib.sitemaps",
+    "django.contrib.staticfiles",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
     "accounts",
     "courses",
 ]
@@ -43,6 +44,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "lms.urls"
+WSGI_APPLICATION = "lms.wsgi.application"
 
 TEMPLATES = [
     {
@@ -59,9 +61,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = "lms.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -87,12 +86,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
+LANGUAGE_CODE = "ru-RU"
+TIME_ZONE = "Asia/Krasnoyarsk"
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 
