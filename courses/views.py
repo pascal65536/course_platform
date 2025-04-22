@@ -21,7 +21,6 @@ can_dct = {
     (3, 2): {"edit": True, "view": False, "exit": False, "append": False},
     (7, 0): {"edit": True, "view": False, "exit": False, "append": False},
     (7, 2): {"edit": True, "view": False, "exit": False, "append": False},
-    (9, 9): {"edit": False, "view": True, "exit": False, "append": True},
 }
 
 
