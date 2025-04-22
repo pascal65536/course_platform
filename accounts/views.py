@@ -3,14 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_protect
 
 
+@csrf_protect
 def custom_logout(request):
     if request.method == "POST":
         logout(request)
         return redirect("course_page")
-    else:
-        return redirect("course_page")
+    return redirect("course_page")
 
 
 def custom_login(request):
